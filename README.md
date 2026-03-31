@@ -1,0 +1,454 @@
+# CC Stack — Claude Code Plugin
+
+A structured software development team plugin for [Claude Code](https://docs.anthropic.com/en/docs/claude-code) that orchestrates specialized AI agents through a complete SDLC workflow — from requirements analysis to production-ready code.
+
+> **One plugin, four agents, five skills — a full development team in your terminal.**
+
+---
+
+## Table of Contents
+
+- [Overview](#overview)
+- [The Workflow Pipeline](#the-workflow-pipeline)
+- [Agents](#agents)
+- [Skills](#skills)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Plugin Structure](#plugin-structure)
+- [How It Works](#how-it-works)
+- [Configuration](#configuration)
+- [Contributing](#contributing)
+- [License](#license)
+
+---
+
+## Overview
+
+CC Stack provides a multi-agent development team that follows a structured software development lifecycle. Instead of a single AI handling everything, specialized agents collaborate through well-defined workflow skills — each agent focusing on what it does best.
+
+### Key Principles
+
+- **Separation of concerns** — Each agent has a distinct role, competency, and perspective
+- **Parallel execution** — Independent tasks and analyses run simultaneously for efficiency
+- **Multi-perspective review** — Code is validated by business, technical, and QA reviewers before completion
+- **Structured artifacts** — Every phase produces documented, traceable output (PRDs, designs, plans)
+- **Technology-agnostic** — Agents adapt to your project's language, framework, and conventions
+
+---
+
+## The Workflow Pipeline
+
+CC Stack follows a linear, phase-gated SDLC pipeline. Each skill produces a documented artifact that feeds into the next phase:
+
+```
+ ┌──────────┐     ┌───────────┐     ┌──────────┐     ┌──────────┐     ┌────────────┐
+ │ ANALYZE  │────▶│  DESIGN   │────▶│   PLAN   │────▶│   TASK   │────▶│ GIT COMMIT │
+ │          │     │           │     │          │     │          │     │            │
+ │ PRD      │     │ System    │     │ Impl.    │     │ Code +   │     │ Clean      │
+ │ Document │     │ Design    │     │ Plan     │     │ Review   │     │ Commits    │
+ └──────────┘     └───────────┘     └──────────┘     └──────────┘     └────────────┘
+```
+
+| Phase | Skill | Input | Output | Agents Involved |
+|-------|-------|-------|--------|-----------------|
+| **1. Analyze** | `analyze` | Feature request / business need | `docs/requirements/prd_XXX.md` | Business Analyst + Tech Lead |
+| **2. Design** | `design` | PRD document | `docs/designs/design_XXX.md` | 4× Tech Lead (parallel) |
+| **3. Plan** | `plan` | Design document | `docs/plans/plan_XXX.md` | Tech Lead + Business Analyst |
+| **4. Task** | `task` | Plan document | Implemented code (reviewed) | Senior Engineer + 3 reviewers |
+| **5. Commit** | `git-commit` | Staged changes | Clean git commits | — (utility skill) |
+
+---
+
+## Agents
+
+### Business Analyst
+
+| | |
+|---|---|
+| **File** | `agents/business-analyst.md` |
+| **Model** | Opus |
+| **Specialty** | Requirements engineering, PRDs, stakeholder analysis |
+
+A Senior Business Analyst with 15+ years of experience. Transforms vague user needs into structured, actionable Product Requirement Documents.
+
+**Capabilities:**
+- Requirements elicitation using 5 Whys, MoSCoW prioritization, user story mapping
+- Gap identification and clarifying question generation
+- Acceptance criteria definition with testable conditions
+- Stakeholder mapping and constraint discovery
+- PRD authoring with full document structure
+
+---
+
+### Technical Lead / Architect
+
+| | |
+|---|---|
+| **File** | `agents/technical-lead-architect.md` |
+| **Model** | Opus |
+| **Specialty** | System design, architecture decisions, design documentation |
+
+An elite Technical Leader with 15+ years designing enterprise-grade systems. Provides high-level guidance on architecture, component design, and technical trade-offs.
+
+**Capabilities:**
+- System architecture analysis and design
+- Component boundary definition and communication patterns
+- API design with versioning, authentication, and error handling
+- Resilience patterns (circuit breakers, retries, fallbacks)
+- Design documentation with ADR (Architecture Decision Record) format
+- Security, scalability, and observability assessment
+
+---
+
+### Senior Engineer
+
+| | |
+|---|---|
+| **File** | `agents/senior-engineer.md` |
+| **Model** | Opus |
+| **Specialty** | Implementation, database design, PRD-to-code translation |
+
+A Senior Software Engineer who translates complex requirements into production-ready code. Adapts to the project's language, framework, and conventions.
+
+**Capabilities:**
+- Clean, idiomatic code following project conventions
+- Database schema design with proper indexing and constraints
+- Query optimization and N+1 prevention
+- PRD analysis and implementation step breakdown
+- Framework-native patterns (ORM, DI, jobs, events, validation)
+- Comprehensive test writing (happy paths, failures, edge cases)
+
+---
+
+### QA Engineer
+
+| | |
+|---|---|
+| **File** | `agents/qa-engineer.md` |
+| **Model** | Opus |
+| **Specialty** | Code review, testing strategy, defect detection, requirement verification |
+
+A Senior QA Engineer and the last line of defense before code reaches production. Performs thorough code reviews, designs test strategies, and validates implementations against requirements.
+
+**Capabilities:**
+- Line-by-line code review (correctness, security, maintainability, performance)
+- Testing strategy design using the test pyramid (unit → integration → E2E)
+- Security vulnerability detection (SQL injection, XSS, CSRF, mass assignment)
+- Requirements traceability — mapping tests to acceptance criteria
+- Structured QA reports with severity-ranked findings (Critical / Major / Minor)
+- Bug investigation and reproduction
+
+---
+
+## Skills
+
+### `analyze` — Requirements Analysis
+
+> **Command:** Triggered when user provides feature requirements or asks to create a PRD
+
+Orchestrates parallel analysis by spawning `business-analyst` and `technical-lead-architect` simultaneously. Both agents analyze the requirements from their respective perspectives, and their outputs are synthesized into a unified PRD.
+
+```
+                     ┌── business-analyst ─────────┐
+User requirement ──▶ │   (business perspective)    │──▶ Synthesize ──▶ prd_XXX.md
+                     └── technical-lead-architect ─┘
+                         (technical perspective)
+```
+
+**Output:** `docs/requirements/prd_XXX.md`
+
+---
+
+### `design` — System Design
+
+> **Command:** Triggered when user provides a PRD and asks to create a system design
+
+Spawns **four** `technical-lead-architect` agents in parallel, each researching a specific architectural concern:
+
+| Agent | Focus Area |
+|-------|-----------|
+| Architect 1 | Architecture & Components — system structure, tech stack, design patterns |
+| Architect 2 | External Services & APIs — integrations, endpoints, rate limiting |
+| Architect 3 | Data Model & Migration — schema changes, relationships, rollback plans |
+| Architect 4 | Security & Performance — auth, encryption, caching, scalability |
+
+All findings are synthesized into a single comprehensive design document.
+
+**Output:** `docs/designs/design_XXX.md`
+
+---
+
+### `plan` — Implementation Planning
+
+> **Command:** Triggered when user provides a design document and asks to plan implementation
+
+Analyzes the design to produce a detailed implementation plan with:
+
+- **Task breakdown** — Granular, 2–4 hour tasks with acceptance criteria
+- **Dependency graph** — Visual representation of task relationships
+- **Conflict analysis** — File conflicts, database conflicts, interface conflicts
+- **Parallelization opportunities** — Which tasks can run simultaneously
+- **Risk register** — Identified risks with likelihood, impact, and mitigation
+- **Rollback strategy** — Per-phase rollback procedures
+
+Spawns `technical-lead-architect` (task breakdown & deps) and `business-analyst` (acceptance criteria mapping) in parallel.
+
+**Output:** `docs/plans/plan_XXX.md`
+
+---
+
+### `task` — Task Execution
+
+> **Command:** Triggered when user provides a plan file and asks to execute tasks
+
+The core execution engine. Reads the plan, identifies available tasks, and spawns `senior-engineer` agents to implement them — parallelizing independent tasks.
+
+After implementation, a **triple review gate** validates the work:
+
+```
+                                          ┌─ business-analyst ──────────┐
+                                          │  (business logic check)     │
+senior-engineer(s) ──▶ Implementation ──▶ ├─ technical-lead-architect ──┤──▶ Pass/Fail
+                                          │  (architecture review)      │
+                                          └─ qa-engineer ───────────────┘
+                                             (code review & testing)
+```
+
+Tasks are only marked `✅ DONE` when all three reviewers pass. Failed reviews trigger fixes and re-review.
+
+**Task Status Indicators:**
+
+| Indicator | Meaning |
+|-----------|---------|
+| *(none)* | Pending — not started |
+| ⏳ | In progress |
+| ✅ DONE | Completed and reviewed |
+| 🚫 | Blocked by dependency |
+
+---
+
+### `git-commit` — Clean Git Commits
+
+> **Command:** Triggered when user asks to commit changes
+
+A utility skill for creating clean, professional git commits:
+
+- **No AI signatures** — Never adds "Co-Authored-By" lines
+- **Specific file staging** — Uses `git add <file>`, never `git add .`
+- **Concise messages** — Focuses on _what_ changed and _why_
+- **Safety checks** — Reviews for secrets or unexpected changes before committing
+
+---
+
+## Installation
+
+### Option 1: Per-Session (CLI Flag)
+
+Load the plugin for a single Claude Code session:
+
+```bash
+claude --plugin-dir /path/to/cm-stack-plugin
+```
+
+### Option 2: Project-Level (Persistent)
+
+Add to your project's `.claude/plugins.json` to auto-load the plugin for all sessions in that project:
+
+```json
+{
+  "plugins": [
+    {
+      "path": "/path/to/cm-stack-plugin"
+    }
+  ]
+}
+```
+
+> **Tip:** Use an absolute path, or a path relative to your project root.
+
+---
+
+## Usage
+
+### Full Workflow Example
+
+```
+You:    "I need a subscription billing system for my SaaS app"
+        ↓ (analyze runs → spawns business-analyst + tech lead)
+
+Output: docs/requirements/prd_001.md
+
+You:    "Create a system design from docs/requirements/prd_001.md"
+        ↓ (design runs → spawns 4 tech lead agents in parallel)
+
+Output: docs/designs/design_001.md
+
+You:    "Create an implementation plan from docs/designs/design_001.md"
+        ↓ (plan runs → spawns tech lead + business analyst)
+
+Output: docs/plans/plan_001.md
+
+You:    "Execute tasks from docs/plans/plan_001.md"
+        ↓ (task runs → spawns senior engineers → triple review)
+
+Output: Implementation + updated plan with ✅ DONE tasks
+
+You:    "Commit the changes"
+        ↓ (git-commit runs)
+
+Output: Clean git commit(s)
+```
+
+### Individual Skill Usage
+
+You can use any skill independently:
+
+```
+# Just analyze requirements
+"Analyze the requirements for a user authentication system"
+
+# Just design from an existing PRD
+"Design the system from docs/requirements/prd_003.md"
+
+# Just execute tasks from a plan
+"Work on the tasks in docs/plans/plan_002.md"
+
+# Just commit
+"Commit my changes"
+```
+
+### Checking Progress
+
+```
+"Check progress on docs/plans/plan_001.md"
+```
+
+Returns a summary of completed, in-progress, pending, and blocked tasks with percentage completion.
+
+---
+
+## Plugin Structure
+
+```
+cc-stack-plugin/
+├── .claude-plugin/
+│   └── plugin.json                    # Plugin manifest (name, version, description)
+├── agents/
+│   ├── business-analyst.md            # Requirements & PRD specialist
+│   ├── qa-engineer.md                 # Code review & testing specialist
+│   ├── senior-engineer.md             # Implementation specialist
+│   └── technical-lead-architect.md    # Architecture & design specialist
+├── skills/
+│   ├── analyze/
+│   │   └── SKILL.md                   # analyze: Requirements → PRD
+│   ├── design/
+│   │   └── SKILL.md                   # design: PRD → System Design
+│   ├── plan/
+│   │   └── SKILL.md                   # plan: Design → Implementation Plan
+│   ├── task/
+│   │   └── SKILL.md                   # task: Plan → Code (with review gate)
+│   └── git-commit/
+│       └── SKILL.md                   # git-commit: Clean commit workflow
+└── README.md
+```
+
+### Generated Artifacts (in your project)
+
+When you use the workflow skills, they produce documents in your project:
+
+```
+your-project/
+└── docs/
+    ├── requirements/
+    │   ├── prd_001.md                 # Product Requirement Document
+    │   └── prd_002.md
+    ├── designs/
+    │   ├── design_001.md              # System Design Document
+    │   └── design_002.md
+    └── plans/
+        ├── plan_001.md                # Implementation Plan
+        └── plan_002.md
+```
+
+---
+
+## How It Works
+
+### Agent Orchestration
+
+The plugin uses Claude Code's **Agent tool** to spawn specialized subagents. Each agent definition includes:
+
+- **Frontmatter** — Name, description with usage examples, model selection, and color coding
+- **System prompt** — Identity, core competencies, behavioral guidelines, and output formats
+
+Agents are spawned on-demand by skills and can run in parallel using `run_in_background: true`.
+
+### Multi-Perspective Review
+
+The `task` skill implements a **review gate** that requires three independent reviews before work is marked complete:
+
+1. **Business Analyst** — Validates acceptance criteria and business logic correctness
+2. **Technical Lead** — Reviews architectural alignment, code quality, and security
+3. **QA Engineer** — Performs code review, identifies defects, verifies test coverage
+
+If any reviewer flags issues, the implementation is revised and re-reviewed.
+
+### Agent Memory
+
+All agents are designed to **build institutional knowledge** across conversations. They record:
+
+- Architectural patterns and conventions discovered in the codebase
+- Database schemas and relationships
+- Integration points and API contracts
+- Testing patterns and factory configurations
+- Common bug patterns and performance benchmarks
+
+---
+
+## Configuration
+
+### Plugin Manifest
+
+The plugin is defined in `.claude-plugin/plugin.json`:
+
+```json
+{
+  "name": "cm-stack",
+  "version": "0.1.0",
+  "description": "A development team plugin for Claude Code...",
+  "author": {
+    "name": "Tien Le H."
+  }
+}
+```
+
+### Agent Model Selection
+
+All agents currently use the `opus` model for highest quality reasoning. You can modify the `model` field in each agent's frontmatter to change this:
+
+```yaml
+---
+name: senior-engineer
+model: opus       # Change to sonnet for faster/cheaper execution
+color: yellow
+---
+```
+
+---
+
+## Contributing
+
+1. **Agents** are defined in `agents/<name>.md` with YAML frontmatter + markdown system prompts
+2. **Skills** are defined in `skills/<name>/SKILL.md` with workflow instructions
+3. Follow the existing patterns for consistency — each skill should document:
+   - When to use / when not to use
+   - Workflow diagram (Mermaid)
+   - Step-by-step implementation
+   - Common mistakes
+   - File output conventions
+
+---
+
+## License
+
+MIT
