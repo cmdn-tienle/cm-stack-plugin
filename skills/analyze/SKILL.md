@@ -115,7 +115,7 @@ Create a structured PRD at `docs/requirements/prd_[XXX].md` with:
 **Action:**
 1. Spawn `business-analyst` → analyzes subscription models, pricing tiers, payment flows, user needs
 2. Spawn `technical-lead-architect` → analyzes payment gateway options, database schema, security, scalability
-3. Synthesize into `docs/requirements/prd_[XXX].md`
+3. Synthesize into `docs/requirements/prd_[XXX].md` (e.g., `prd_001.md`, `prd_002.md`)
 
 ## Common Mistakes
 

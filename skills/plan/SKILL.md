@@ -1,5 +1,5 @@
 ---
-name: cm-plan
+name: plan
 description: Use when user provides a design document (design_XXX.md) and wants to create an implementation plan - analyzes design phases, breaks down into actionable tasks, identifies dependencies and conflicts
 ---
 
