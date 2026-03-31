@@ -1,4 +1,4 @@
-# CC Stack — Claude Code Plugin
+# CM Stack — Claude Code Plugin
 
 A structured software development team plugin for [Claude Code](https://docs.anthropic.com/en/docs/claude-code) that orchestrates specialized AI agents through a complete SDLC workflow — from requirements analysis to production-ready code.
 
@@ -24,7 +24,7 @@ A structured software development team plugin for [Claude Code](https://docs.ant
 
 ## Overview
 
-CC Stack provides a multi-agent development team that follows a structured software development lifecycle. Instead of a single AI handling everything, specialized agents collaborate through well-defined workflow skills — each agent focusing on what it does best.
+CM Stack provides a multi-agent development team that follows a structured software development lifecycle. Instead of a single AI handling everything, specialized agents collaborate through well-defined workflow skills — each agent focusing on what it does best.
 
 ### Key Principles
 
@@ -38,7 +38,7 @@ CC Stack provides a multi-agent development team that follows a structured softw
 
 ## The Workflow Pipeline
 
-CC Stack follows a linear, phase-gated SDLC pipeline. Each skill produces a documented artifact that feeds into the next phase:
+CM Stack follows a linear, phase-gated SDLC pipeline. Each skill produces a documented artifact that feeds into the next phase:
 
 ```
  ┌──────────┐     ┌───────────┐     ┌──────────┐     ┌──────────┐     ┌────────────┐
@@ -330,7 +330,7 @@ Returns a summary of completed, in-progress, pending, and blocked tasks with per
 ## Plugin Structure
 
 ```
-cc-stack-plugin/
+cm-stack-plugin/
 ├── .claude-plugin/
 │   └── plugin.json                    # Plugin manifest (name, version, description)
 ├── agents/
