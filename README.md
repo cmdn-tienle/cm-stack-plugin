@@ -2,7 +2,7 @@
 
 A structured software development team plugin for [Claude Code](https://docs.anthropic.com/en/docs/claude-code) that orchestrates specialized AI agents through a complete SDLC workflow — from requirements analysis to production-ready code.
 
-> **One plugin, four agents, five skills — a full development team in your terminal.**
+> **One plugin, four agents, seven skills — a full development team in your terminal.**
 
 ---
 
@@ -38,24 +38,39 @@ CM Stack provides a multi-agent development team that follows a structured softw
 
 ## The Workflow Pipeline
 
-CM Stack follows a linear, phase-gated SDLC pipeline. Each skill produces a documented artifact that feeds into the next phase:
+CM Stack provides multiple entry points depending on how well-defined your requirements are:
 
 ```
- ┌──────────┐     ┌───────────┐     ┌──────────┐     ┌──────────┐     ┌────────────┐
- │ ANALYZE  │────▶│  DESIGN   │────▶│   PLAN   │────▶│   TASK   │────▶│ GIT COMMIT │
- │          │     │           │     │          │     │          │     │            │
- │ PRD      │     │ System    │     │ Impl.    │     │ Code +   │     │ Clean      │
- │ Document │     │ Design    │     │ Plan     │     │ Review   │     │ Commits    │
- └──────────┘     └───────────┘     └──────────┘     └──────────┘     └────────────┘
+                              Vague idea? ──▶ BRAINSTORM ──▶ lead_XXX.md ──┐
+                                                                           │
+ ┌──────────┐     ┌───────────┐     ┌──────────┐     ┌──────────┐     ┌────▼────┐
+ │ ANALYZE  │────▶│  DESIGN   │────▶│   PLAN   │────▶│   TASK   │────▶│  COMMIT │
+ │          │     │           │     │          │     │          │     │         │
+ │ PRD      │     │ System    │     │ Impl.    │     │ Code +   │     │ Clean   │
+ │ Document │     │ Design    │     │ Plan     │     │ Review   │     │ Commits │
+ └──────────┘     └───────────┘     └──────────┘     └──────────┘     └─────────┘
+       ▲
+       │       ┌─────────────────────────────────────────────────────────────┐
+       └───────│ Well-defined, small scope? ──▶ FAST-TRACK ──▶ Code (skip)   │
+               └─────────────────────────────────────────────────────────────┘
 ```
+
+### Full Workflow (Documentation-Heavy)
 
 | Phase | Skill | Input | Output | Agents Involved |
 |-------|-------|-------|--------|-----------------|
-| **1. Analyze** | `analyze` | Feature request / business need | `docs/requirements/prd_XXX.md` | Business Analyst + Tech Lead |
+| **0. Brainstorm** | `brainstorm` | Vague idea / rough concept | `docs/leads/lead_XXX.md` | Business Analyst + Tech Lead |
+| **1. Analyze** | `analyze` | Feature request / lead document | `docs/requirements/prd_XXX.md` | Business Analyst + Tech Lead |
 | **2. Design** | `design` | PRD document | `docs/designs/design_XXX.md` | 4× Tech Lead (parallel) |
 | **3. Plan** | `plan` | Design document | `docs/plans/plan_XXX.md` | Tech Lead + Business Analyst |
 | **4. Task** | `task` | Plan document | Implemented code (reviewed) | Senior Engineer + 3 reviewers |
 | **5. Commit** | `git-commit` | Staged changes | Clean git commits | — (utility skill) |
+
+### Fast-Track (Skip Documentation)
+
+| Phase | Skill | Input | Output | Agents Involved |
+|-------|-------|-------|--------|-----------------|
+| **Fast-Track** | `fast-track` | Lead doc or well-defined prompt | Implemented code (light review) | Senior Engineer + QA |
 
 ---
 
@@ -142,6 +157,28 @@ A Senior QA Engineer and the last line of defense before code reaches production
 
 ## Skills
 
+### `brainstorm` — Discovery & Clarification
+
+> **Command:** Triggered when user has a vague idea, rough concept, or unstructured lead
+
+Transforms vague ideas into clear, actionable requirements through collaborative analysis and targeted questioning. Spawns `business-analyst` and `technical-lead-architect` to examine the lead from multiple perspectives.
+
+```
+               ┌── business-analyst ──────────┐
+Vague idea ───▶│   (business questions)       │──▶ Q&A ──▶ lead_XXX.md
+               └───technical-lead-architect───┘
+                         (technical questions)
+```
+
+**When to use:**
+- User says "I'm thinking about..." or "We might need..."
+- Requirements are incomplete or ambiguous
+- Starting discovery for a new initiative
+
+**Output:** `docs/leads/lead_XXX.md`
+
+---
+
 ### `analyze` — Requirements Analysis
 
 > **Command:** Triggered when user provides feature requirements or asks to create a PRD
@@ -227,6 +264,31 @@ Tasks are only marked `✅ DONE` when all three reviewers pass. Failed reviews t
 
 ---
 
+### `fast-track` — Skip Documentation, Ship Fast
+
+> **Command:** Triggered when user has well-defined requirements and wants to skip documentation
+
+Bypasses the full workflow for small, clear-scope work. Spawns `senior-engineer` to implement directly, followed by lightweight `qa-engineer` review. No PRD, design, or plan documents created.
+
+```
+Well-defined ──▶ senior-engineer ──▶ Implementation ──▶ qa-engineer ──▶ Done
+    prompt           (implement)                        (light review)
+```
+
+**When to use:**
+- User provides a lead document and says "just implement this"
+- User says "skip the paperwork" or "fast-track this"
+- Scope is small (1-3 files, clear boundaries)
+
+**When NOT to use:**
+- Requirements are vague (use `brainstorm` first)
+- Scope is large or complex (use full workflow)
+- Multiple components/systems involved
+
+**Output:** Implemented code + optional summary at `docs/implementation/impl_XXX.md`
+
+---
+
 ### `git-commit` — Clean Git Commits
 
 > **Command:** Triggered when user asks to commit changes
@@ -270,7 +332,7 @@ Add to your project's `.claude/plugins.json` to auto-load the plugin for all ses
 
 ## Usage
 
-### Full Workflow Example
+### Full Workflow Example (Complex Feature)
 
 ```
 You:    "I need a subscription billing system for my SaaS app"
@@ -299,11 +361,46 @@ You:    "Commit the changes"
 Output: Clean git commit(s)
 ```
 
+### Discovery Workflow Example (Vague Idea)
+
+```
+You:    "I'm thinking about adding SSO to our app"
+        ↓ (brainstorm runs → spawns business-analyst + tech lead)
+
+Output: Clarifying questions about providers, users, flows...
+
+You:    [Answers questions]
+        ↓ (synthesizes responses)
+
+Output: docs/leads/lead_001.md with clear requirements
+
+You:    "Now analyze and create a PRD"
+        ↓ (continues to full workflow)
+```
+
+### Fast-Track Example (Skip Documentation)
+
+```
+You:    "Add a rate limiter to the API, max 100 req/min per IP"
+        ↓ (fast-track runs → spawns senior-engineer)
+
+Output: Rate limiting middleware implemented
+
+        ↓ (qa-engineer reviews)
+
+Output: QA review passed, done!
+
+Total: 2 agents, no documentation, fast delivery
+```
+
 ### Individual Skill Usage
 
 You can use any skill independently:
 
 ```
+# Brainstorm a vague idea
+"I'm considering adding real-time notifications"
+
 # Just analyze requirements
 "Analyze the requirements for a user authentication system"
 
@@ -313,9 +410,22 @@ You can use any skill independently:
 # Just execute tasks from a plan
 "Work on the tasks in docs/plans/plan_002.md"
 
+# Fast-track a small, clear task
+"Add input validation to the contact form"
+
 # Just commit
 "Commit my changes"
 ```
+
+### Choosing the Right Workflow
+
+| Your Situation | Use | Why |
+|----------------|-----|-----|
+| "I have a vague idea" | `brainstorm` | Clarify before committing |
+| "I know what I want, but it's complex" | `analyze` → full workflow | Complex needs thorough planning |
+| "Just implement this small thing" | `fast-track` | Skip docs, ship fast |
+| "I have a PRD, now what?" | `design` | Continue the pipeline |
+| "I have a plan, execute it" | `task` | Start implementation |
 
 ### Checking Progress
 
@@ -339,6 +449,8 @@ cm-stack-plugin/
 │   ├── senior-engineer.md             # Implementation specialist
 │   └── technical-lead-architect.md    # Architecture & design specialist
 ├── skills/
+│   ├── brainstorm/
+│   │   └── SKILL.md                   # brainstorm: Vague idea → Lead document
 │   ├── analyze/
 │   │   └── SKILL.md                   # analyze: Requirements → PRD
 │   ├── design/
@@ -347,6 +459,8 @@ cm-stack-plugin/
 │   │   └── SKILL.md                   # plan: Design → Implementation Plan
 │   ├── task/
 │   │   └── SKILL.md                   # task: Plan → Code (with review gate)
+│   ├── fast-track/
+│   │   └── SKILL.md                   # fast-track: Lead/prompt → Code (skip docs)
 │   └── git-commit/
 │       └── SKILL.md                   # git-commit: Clean commit workflow
 └── README.md
@@ -359,15 +473,20 @@ When you use the workflow skills, they produce documents in your project:
 ```
 your-project/
 └── docs/
+    ├── leads/
+    │   ├── lead_260401_sso.md         # Clarified requirements from brainstorming
+    │   └── lead_260415_reporting.md
     ├── requirements/
     │   ├── prd_001.md                 # Product Requirement Document
     │   └── prd_002.md
     ├── designs/
     │   ├── design_001.md              # System Design Document
     │   └── design_002.md
-    └── plans/
-        ├── plan_001.md                # Implementation Plan
-        └── plan_002.md
+    ├── plans/
+    │   ├── plan_001.md                # Implementation Plan
+    │   └── plan_002.md
+    └── implementation/
+        └── impl_001.md                # Optional fast-track summary
 ```
 
 ---
