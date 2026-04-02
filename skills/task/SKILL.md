@@ -1,5 +1,5 @@
 ---
-name: cm-task
+name: task
 description: Use when user provides a plan file and wants to execute tasks - spawns senior-engineer agents to implement tasks in parallel, then validates with business-analyst, technical-lead-architect, and qa-engineer reviews before marking tasks complete
 ---
 

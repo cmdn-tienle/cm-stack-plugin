@@ -1,5 +1,5 @@
 ---
-name: cm-design
+name: design
 description: Use when user provides a PRD file and wants to create a System Design document - spawns multiple technical-lead-architect agents in parallel to research different aspects, then synthesizes findings into comprehensive design document
 ---
 
@@ -288,10 +288,10 @@ Create the design file at `docs/designs/design_[XXX].md` with this structure:
 ## Example
 
 **User input:**
-> "Create a system design from docs/requirements/prd_subscription-billing.md"
+> "Create a system design from docs/requirements/prd_001.md"
 
 **Action:**
-1. Read `docs/requirements/prd_subscription-billing.md`
+1. Read `docs/requirements/prd_001.md`
 2. Spawn 4 `technical-lead-architect` agents in parallel:
    - Architecture & Components research
    - External Services & APIs research

@@ -1,6 +1,6 @@
 ---
 name: analyze
-description: Use when user provides feature requirements, business needs, or wants to create a PRD - spawns business-analyst and technical-lead-architect agents to analyze requirements from multiple perspectives
+description: Use when user provides well-defined feature requirements, a lead document, or wants to create a PRD - spawns business-analyst and technical-lead-architect agents to analyze requirements from multiple perspectives
 ---
 
 # CM Analyze
@@ -14,21 +14,24 @@ Orchestrates parallel agent analysis to produce comprehensive Product Requiremen
 ## When to Use
 
 Use when:
-- User describes a new feature or business requirement
+- User provides well-defined feature requirements or business needs
+- User provides a lead document from brainstorming (lead_XXX.md)
 - User asks to "analyze requirements" or "create a PRD"
-- User provides vague or multi-stakeholder requirements
 - Starting a new feature that needs structured documentation
 
 Do NOT use when:
 - User asks simple questions (just answer directly)
 - User requests code changes without documentation needs
 - Requirements are already well-defined in a PRD
+- Requirements are vague or unclear (use `brainstorm` skill first)
 
 ## Workflow
 
 ```mermaid
 flowchart TB
-    start([User provides requirements])
+    start([User provides requirements<br/>or lead document])
+    check{Is it a lead file?}
+    read_lead[Read lead_XXX.md]
     spawn[Spawn agents in parallel]
     ba["business-analyst<br/>(Business perspective)"]
     tla["technical-lead-architect<br/>(Technical perspective)"]
@@ -37,7 +40,10 @@ flowchart TB
     prd["Write PRD to<br/>docs/requirements/prd_XXX.md"]
     done([Report completion])
 
-    start --> spawn
+    start --> check
+    check -->|Yes| read_lead
+    check -->|No| spawn
+    read_lead --> spawn
     spawn --> ba
     spawn --> tla
     ba --> wait
@@ -49,21 +55,29 @@ flowchart TB
 
 ## Implementation
 
-### Step 1: Spawn Agents in Parallel
+### Step 1: Check for Lead Document (Optional)
+
+If the user provides a lead document path (e.g., `docs/leads/lead_260401_sso.md`):
+
+1. Read the lead document using the Read tool
+2. Extract the "Clarified Requirements" section as the input for analysis
+3. Include any open questions from the lead in the PRD's "Open Questions" section
+
+### Step 2: Spawn Agents in Parallel
 
 Use the Agent tool to spawn both agents simultaneously:
 
 ```
 Agent (subagent_type: "business-analyst")
-- prompt: Analyze the following requirements from a business perspective: [user's requirements]
+- prompt: Analyze the following requirements from a business perspective: [user's requirements or lead content]
 - description: "Analyze business requirements"
 
 Agent (subagent_type: "technical-lead-architect")
-- prompt: Analyze the following requirements from a technical/architectural perspective: [user's requirements]
+- prompt: Analyze the following requirements from a technical/architectural perspective: [user's requirements or lead content]
 - description: "Analyze technical requirements"
 ```
 
-### Step 2: Synthesize Reports
+### Step 3: Synthesize Reports
 
 Once both agents complete, combine their outputs:
 
@@ -75,7 +89,7 @@ Once both agents complete, combine their outputs:
 | Business rules | Implementation risks |
 | Acceptance criteria | Technology choices |
 
-### Step 3: Write PRD
+### Step 4: Write PRD
 
 Create a structured PRD at `docs/requirements/prd_[XXX].md` with:
 
@@ -115,7 +129,7 @@ Create a structured PRD at `docs/requirements/prd_[XXX].md` with:
 **Action:**
 1. Spawn `business-analyst` → analyzes subscription models, pricing tiers, payment flows, user needs
 2. Spawn `technical-lead-architect` → analyzes payment gateway options, database schema, security, scalability
-3. Synthesize into `docs/requirements/prd_[XXX].md`
+3. Synthesize into `docs/requirements/prd_[XXX].md` (e.g., `prd_001.md`, `prd_002.md`)
 
 ## Common Mistakes
 
