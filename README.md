@@ -2,7 +2,7 @@
 
 A structured software development team plugin for [Claude Code](https://docs.anthropic.com/en/docs/claude-code) that orchestrates specialized AI agents through a complete SDLC workflow — from requirements analysis to production-ready code.
 
-> **One plugin, four agents, seven skills — a full development team in your terminal.**
+> **One plugin, four agents, eight skills — a full development team in your terminal.**
 
 ---
 
@@ -65,6 +65,7 @@ CM Stack provides multiple entry points depending on how well-defined your requi
 | **3. Plan** | `plan` | Design document | `docs/plans/plan_XXX.md` | Tech Lead + Business Analyst |
 | **4. Task** | `task` | Plan document | Implemented code (reviewed) | Senior Engineer + 3 reviewers |
 | **5. Commit** | `git-commit` | Staged changes | Clean git commits | — (utility skill) |
+| **Review** | `review-branch` | Branch diff | Structured review report | — (utility skill) |
 
 ### Fast-Track (Skip Documentation)
 
@@ -289,6 +290,33 @@ Well-defined ──▶ senior-engineer ──▶ Implementation ──▶ qa-eng
 
 ---
 
+### `review-branch` — Branch Code Review
+
+> **Command:** Triggered when user asks to review a branch, code changes, or PR
+
+Performs a comprehensive code review by comparing the current branch against a target branch. Covers security, correctness, performance, error handling, maintainability, testing, and cross-file impact.
+
+```
+Target branch ──▶ git diff ──▶ Systematic review ──▶ Structured report
+(main/develop)     (gather)     (8 categories)       (docs/code-review/)
+```
+
+**Review categories:**
+- Correctness & Logic — bugs, edge cases, race conditions
+- Security — injection, auth, data exposure
+- Error Handling & Reliability — cleanup, retry, swallowed exceptions
+- Performance — N+1 queries, memory, unnecessary sync ops
+- API Design & Contracts — conventions, breaking changes, backward-compat
+- Data Integrity — transactions, migrations, rollback safety
+- Maintainability & Readability — abstraction level, naming, DRY
+- Testing — coverage, edge cases, deterministic tests
+
+**Severity levels:** CRITICAL / HIGH / MEDIUM / LOW / INFO
+
+**Output:** `docs/code-review/<timestamp>_<source>_<target>.md`
+
+---
+
 ### `git-commit` — Clean Git Commits
 
 > **Command:** Triggered when user asks to commit changes
@@ -415,6 +443,9 @@ You can use any skill independently:
 
 # Just commit
 "Commit my changes"
+
+# Review a branch
+"Review my branch against main"
 ```
 
 ### Choosing the Right Workflow
@@ -426,6 +457,7 @@ You can use any skill independently:
 | "Just implement this small thing" | `fast-track` | Skip docs, ship fast |
 | "I have a PRD, now what?" | `design` | Continue the pipeline |
 | "I have a plan, execute it" | `task` | Start implementation |
+| "Review my branch/changes" | `review-branch` | Catch issues before merge |
 
 ### Checking Progress
 
@@ -461,6 +493,14 @@ cm-stack-plugin/
 │   │   └── SKILL.md                   # task: Plan → Code (with review gate)
 │   ├── fast-track/
 │   │   └── SKILL.md                   # fast-track: Lead/prompt → Code (skip docs)
+│   ├── review-branch/
+│   │   ├── SKILL.md                   # review-branch: Branch diff → Structured review report
+│   │   ├── evals/
+│   │   │   └── evals.json             # Evaluation configurations
+│   │   └── references/
+│   │       ├── performance-checklist.md  # Performance review criteria
+│   │       ├── review-template.md        # Report template
+│   │       └── security-checklist.md     # Security review criteria
 │   └── git-commit/
 │       └── SKILL.md                   # git-commit: Clean commit workflow
 └── README.md
@@ -487,6 +527,8 @@ your-project/
     │   └── plan_002.md
     └── implementation/
         └── impl_001.md                # Optional fast-track summary
+    └── code-review/
+        └── 20260407-143025_feature-login_main.md  # Branch review report
 ```
 
 ---
