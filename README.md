@@ -1,6 +1,6 @@
-# CM Stack — Claude Code Plugin
+# CM Stack Plugin Marketplace
 
-A structured software development team plugin for [Claude Code](https://docs.anthropic.com/en/docs/claude-code) that orchestrates specialized AI agents through a complete SDLC workflow — from requirements analysis to production-ready code.
+A [Claude Code](https://docs.anthropic.com/en/docs/claude-code) plugin marketplace hosting **CM Stack Workflows** — a structured multi-agent development team that orchestrates specialized AI agents through a complete SDLC workflow.
 
 > **One plugin, four agents, eight skills — a full development team in your terminal.**
 
@@ -8,11 +8,10 @@ A structured software development team plugin for [Claude Code](https://docs.ant
 
 ## Table of Contents
 
-- [Overview](#overview)
+- [Installation](#installation)
 - [The Workflow Pipeline](#the-workflow-pipeline)
 - [Agents](#agents)
 - [Skills](#skills)
-- [Installation](#installation)
 - [Usage](#usage)
 - [Plugin Structure](#plugin-structure)
 - [How It Works](#how-it-works)
@@ -22,17 +21,40 @@ A structured software development team plugin for [Claude Code](https://docs.ant
 
 ---
 
-## Overview
+## Installation
 
-CM Stack provides a multi-agent development team that follows a structured software development lifecycle. Instead of a single AI handling everything, specialized agents collaborate through well-defined workflow skills — each agent focusing on what it does best.
+### Option 1: Install from Marketplace
 
-### Key Principles
+Add the marketplace and install the plugin:
 
-- **Separation of concerns** — Each agent has a distinct role, competency, and perspective
-- **Parallel execution** — Independent tasks and analyses run simultaneously for efficiency
-- **Multi-perspective review** — Code is validated by business, technical, and QA reviewers before completion
-- **Structured artifacts** — Every phase produces documented, traceable output (PRDs, designs, plans)
-- **Technology-agnostic** — Agents adapt to your project's language, framework, and conventions
+```bash
+/plugin marketplace add cmdn-labs/cm-stack-plugin
+/plugin install cm-stack-workflows@cm-stack-plugin
+```
+
+### Option 2: Per-Session (CLI Flag)
+
+Load the plugin for a single Claude Code session:
+
+```bash
+claude --plugin-dir /path/to/cm-stack-plugin/plugins/cm-stack-workflows
+```
+
+### Option 3: Project-Level (Persistent)
+
+Add to your project's `.claude/plugins.json` to auto-load the plugin for all sessions in that project:
+
+```json
+{
+  "plugins": [
+    {
+      "path": "/path/to/cm-stack-plugin/plugins/cm-stack-workflows"
+    }
+  ]
+}
+```
+
+> **Tip:** Use an absolute path, or a path relative to your project root.
 
 ---
 
@@ -330,34 +352,6 @@ A utility skill for creating clean, professional git commits:
 
 ---
 
-## Installation
-
-### Option 1: Per-Session (CLI Flag)
-
-Load the plugin for a single Claude Code session:
-
-```bash
-claude --plugin-dir /path/to/cm-stack-plugin
-```
-
-### Option 2: Project-Level (Persistent)
-
-Add to your project's `.claude/plugins.json` to auto-load the plugin for all sessions in that project:
-
-```json
-{
-  "plugins": [
-    {
-      "path": "/path/to/cm-stack-plugin"
-    }
-  ]
-}
-```
-
-> **Tip:** Use an absolute path, or a path relative to your project root.
-
----
-
 ## Usage
 
 ### Full Workflow Example (Complex Feature)
@@ -471,38 +465,45 @@ Returns a summary of completed, in-progress, pending, and blocked tasks with per
 
 ## Plugin Structure
 
+This repository is a **plugin marketplace** that hosts the `cm-stack-workflows` plugin in a monorepo layout:
+
 ```
-cm-stack-plugin/
+cm-stack-plugin/                            # Marketplace repository
 ├── .claude-plugin/
-│   └── plugin.json                    # Plugin manifest (name, version, description)
-├── agents/
-│   ├── business-analyst.md            # Requirements & PRD specialist
-│   ├── qa-engineer.md                 # Code review & testing specialist
-│   ├── senior-engineer.md             # Implementation specialist
-│   └── technical-lead-architect.md    # Architecture & design specialist
-├── skills/
-│   ├── brainstorm/
-│   │   └── SKILL.md                   # brainstorm: Vague idea → Lead document
-│   ├── analyze/
-│   │   └── SKILL.md                   # analyze: Requirements → PRD
-│   ├── design/
-│   │   └── SKILL.md                   # design: PRD → System Design
-│   ├── plan/
-│   │   └── SKILL.md                   # plan: Design → Implementation Plan
-│   ├── task/
-│   │   └── SKILL.md                   # task: Plan → Code (with review gate)
-│   ├── fast-track/
-│   │   └── SKILL.md                   # fast-track: Lead/prompt → Code (skip docs)
-│   ├── review-branch/
-│   │   ├── SKILL.md                   # review-branch: Branch diff → Structured review report
-│   │   ├── evals/
-│   │   │   └── evals.json             # Evaluation configurations
-│   │   └── references/
-│   │       ├── performance-checklist.md  # Performance review criteria
-│   │       ├── review-template.md        # Report template
-│   │       └── security-checklist.md     # Security review criteria
-│   └── git-commit/
-│       └── SKILL.md                   # git-commit: Clean commit workflow
+│   └── marketplace.json                    # Marketplace catalog
+├── plugins/
+│   └── cm-stack-workflows/                 # The plugin
+│       ├── .claude-plugin/
+│       │   └── plugin.json                 # Plugin manifest
+│       ├── agents/
+│       │   ├── business-analyst.md         # Requirements & PRD specialist
+│       │   ├── qa-engineer.md              # Code review & testing specialist
+│       │   ├── senior-engineer.md          # Implementation specialist
+│       │   └── technical-lead-architect.md # Architecture & design specialist
+│       └── skills/
+│           ├── brainstorm/
+│           │   └── SKILL.md                # brainstorm: Vague idea → Lead document
+│           ├── analyze/
+│           │   └── SKILL.md                # analyze: Requirements → PRD
+│           ├── design/
+│           │   └── SKILL.md                # design: PRD → System Design
+│           ├── plan/
+│           │   └── SKILL.md                # plan: Design → Implementation Plan
+│           ├── task/
+│           │   └── SKILL.md                # task: Plan → Code (with review gate)
+│           ├── fast-track/
+│           │   └── SKILL.md                # fast-track: Lead/prompt → Code (skip docs)
+│           ├── review-branch/
+│           │   ├── SKILL.md                # review-branch: Branch diff → Structured review
+│           │   ├── evals/
+│           │   │   └── evals.json          # Evaluation configurations
+│           │   └── references/
+│           │       ├── performance-checklist.md  # Performance review criteria
+│           │       ├── review-template.md        # Report template
+│           │       └── security-checklist.md     # Security review criteria
+│           └── git-commit/
+│               └── SKILL.md                # git-commit: Clean commit workflow
+├── LICENSE                                 # MIT License
 └── README.md
 ```
 
@@ -570,16 +571,17 @@ All agents are designed to **build institutional knowledge** across conversation
 
 ### Plugin Manifest
 
-The plugin is defined in `.claude-plugin/plugin.json`:
+The plugin is defined in `plugins/cm-stack-workflows/.claude-plugin/plugin.json`:
 
 ```json
 {
-  "name": "cm-stack",
-  "version": "0.1.0",
-  "description": "A development team plugin for Claude Code...",
+  "name": "cm-stack-workflows",
+  "version": "1.0.0",
+  "description": "A structured development team plugin for Claude Code - 4 specialized agents and 8 workflow skills for the full SDLC.",
   "author": {
     "name": "Tien Le H."
-  }
+  },
+  "license": "MIT"
 }
 ```
 
@@ -599,8 +601,8 @@ color: yellow
 
 ## Contributing
 
-1. **Agents** are defined in `agents/<name>.md` with YAML frontmatter + markdown system prompts
-2. **Skills** are defined in `skills/<name>/SKILL.md` with workflow instructions
+1. **Agents** are defined in `plugins/cm-stack-workflows/agents/<name>.md` with YAML frontmatter + markdown system prompts
+2. **Skills** are defined in `plugins/cm-stack-workflows/skills/<name>/SKILL.md` with workflow instructions
 3. Follow the existing patterns for consistency — each skill should document:
    - When to use / when not to use
    - Workflow diagram (Mermaid)
@@ -612,4 +614,4 @@ color: yellow
 
 ## License
 
-MIT
+[MIT](LICENSE)

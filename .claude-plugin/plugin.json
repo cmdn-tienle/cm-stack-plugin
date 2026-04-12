@@ -1,8 +1,0 @@
-{
-  "name": "cm-stack",
-  "version": "0.1.0",
-  "description": "A development team plugin for Claude Code — provides specialized agents (business analyst, QA engineer, senior engineer, tech lead) and workflow skills (analyze → design → plan → task → commit) for structured software development.",
-  "author": {
-    "name": "Tien Le H."
-  }
-}
