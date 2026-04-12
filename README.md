@@ -28,7 +28,7 @@ A [Claude Code](https://docs.anthropic.com/en/docs/claude-code) plugin marketpla
 Add the marketplace and install the plugin:
 
 ```bash
-/plugin marketplace add cmdn-labs/cm-stack-plugin
+/plugin marketplace add cmdn-tienle/cm-stack-plugin
 /plugin install cm-stack-workflows@cm-stack-plugin
 ```
 
@@ -576,7 +576,7 @@ The plugin is defined in `plugins/cm-stack-workflows/.claude-plugin/plugin.json`
 ```json
 {
   "name": "cm-stack-workflows",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "A structured development team plugin for Claude Code - 4 specialized agents and 8 workflow skills for the full SDLC: brainstorm, analyze, design, plan, task, fast-track, review-branch, and git-commit.",
   "author": {
     "name": "Tien Le H."

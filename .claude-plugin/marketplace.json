@@ -8,7 +8,7 @@
       "name": "cm-stack-workflows",
       "source": "./plugins/cm-stack-workflows",
       "description": "A structured development team plugin for Claude Code - 4 specialized agents and 8 workflow skills for the full SDLC: brainstorm, analyze, design, plan, task, fast-track, review-branch, and git-commit.",
-      "version": "0.1.4",
+      "version": "0.1.5",
       "author": {
         "name": "Tien Le H."
       },
