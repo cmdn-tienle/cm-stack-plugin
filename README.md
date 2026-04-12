@@ -576,8 +576,8 @@ The plugin is defined in `plugins/cm-stack-workflows/.claude-plugin/plugin.json`
 ```json
 {
   "name": "cm-stack-workflows",
-  "version": "1.0.0",
-  "description": "A structured development team plugin for Claude Code - 4 specialized agents and 8 workflow skills for the full SDLC.",
+  "version": "0.1.4",
+  "description": "A structured development team plugin for Claude Code - 4 specialized agents and 8 workflow skills for the full SDLC: brainstorm, analyze, design, plan, task, fast-track, review-branch, and git-commit.",
   "author": {
     "name": "Tien Le H."
   },
