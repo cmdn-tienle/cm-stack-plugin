@@ -1,8 +1,9 @@
 # CM Stack Plugin Marketplace
 
-A [Claude Code](https://docs.anthropic.com/en/docs/claude-code) plugin marketplace hosting **CM Stack Workflows** — a structured multi-agent development team that orchestrates specialized AI agents through a complete SDLC workflow.
+A [Claude Code](https://docs.anthropic.com/en/docs/claude-code) plugin marketplace hosting plugins for structured development workflows and AWS knowledge access.
 
-> **One plugin, four agents, eight skills — a full development team in your terminal.**
+> **cm-stack-workflows**: Four agents, eight skills — a full development team in your terminal.
+> **cm-stack-aws-knowledge**: Seven skills wrapping the AWS Knowledge MCP server for documentation, regions, availability, and SOPs.
 
 ---
 
@@ -16,6 +17,9 @@ A [Claude Code](https://docs.anthropic.com/en/docs/claude-code) plugin marketpla
 - [Plugin Structure](#plugin-structure)
 - [How It Works](#how-it-works)
 - [Configuration](#configuration)
+- [AWS Knowledge Plugin](#aws-knowledge-plugin)
+  - [AWS Skills](#aws-skills)
+  - [AWS Usage Examples](#aws-usage-examples)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -472,37 +476,34 @@ cm-stack-plugin/                            # Marketplace repository
 ├── .claude-plugin/
 │   └── marketplace.json                    # Marketplace catalog
 ├── plugins/
-│   └── cm-stack-workflows/                 # The plugin
+│   ├── cm-stack-workflows/                 # Workflow plugin
+│   │   ├── .claude-plugin/
+│   │   │   └── plugin.json                 # Plugin manifest
+│   │   ├── agents/
+│   │   │   ├── business-analyst.md         # Requirements & PRD specialist
+│   │   │   ├── qa-engineer.md              # Code review & testing specialist
+│   │   │   ├── senior-engineer.md          # Implementation specialist
+│   │   │   └── technical-lead-architect.md # Architecture & design specialist
+│   │   └── skills/
+│   │       ├── brainstorm/SKILL.md         # brainstorm: Vague idea → Lead document
+│   │       ├── analyze/SKILL.md            # analyze: Requirements → PRD
+│   │       ├── design/SKILL.md             # design: PRD → System Design
+│   │       ├── plan/SKILL.md               # plan: Design → Implementation Plan
+│   │       ├── task/SKILL.md               # task: Plan → Code (with review gate)
+│   │       ├── fast-track/SKILL.md         # fast-track: Lead/prompt → Code (skip docs)
+│   │       ├── review-branch/SKILL.md      # review-branch: Branch diff → Structured review
+│   │       └── git-commit/SKILL.md         # git-commit: Clean commit workflow
+│   └── cm-stack-aws-knowledge/             # AWS Knowledge plugin
 │       ├── .claude-plugin/
 │       │   └── plugin.json                 # Plugin manifest
-│       ├── agents/
-│       │   ├── business-analyst.md         # Requirements & PRD specialist
-│       │   ├── qa-engineer.md              # Code review & testing specialist
-│       │   ├── senior-engineer.md          # Implementation specialist
-│       │   └── technical-lead-architect.md # Architecture & design specialist
 │       └── skills/
-│           ├── brainstorm/
-│           │   └── SKILL.md                # brainstorm: Vague idea → Lead document
-│           ├── analyze/
-│           │   └── SKILL.md                # analyze: Requirements → PRD
-│           ├── design/
-│           │   └── SKILL.md                # design: PRD → System Design
-│           ├── plan/
-│           │   └── SKILL.md                # plan: Design → Implementation Plan
-│           ├── task/
-│           │   └── SKILL.md                # task: Plan → Code (with review gate)
-│           ├── fast-track/
-│           │   └── SKILL.md                # fast-track: Lead/prompt → Code (skip docs)
-│           ├── review-branch/
-│           │   ├── SKILL.md                # review-branch: Branch diff → Structured review
-│           │   ├── evals/
-│           │   │   └── evals.json          # Evaluation configurations
-│           │   └── references/
-│           │       ├── performance-checklist.md  # Performance review criteria
-│           │       ├── review-template.md        # Report template
-│           │       └── security-checklist.md     # Security review criteria
-│           └── git-commit/
-│               └── SKILL.md                # git-commit: Clean commit workflow
+│           ├── aws-search-docs/SKILL.md    # Search AWS documentation
+│           ├── aws-read-docs/SKILL.md      # Read AWS doc pages
+│           ├── aws-recommend/SKILL.md      # Get related content
+│           ├── aws-list-regions/SKILL.md   # List AWS regions
+│           ├── aws-check-availability/SKILL.md  # Check regional availability
+│           ├── aws-retrieve-sop/SKILL.md   # Retrieve AWS SOPs
+│           └── aws-research/SKILL.md       # Composite search + read
 ├── LICENSE                                 # MIT License
 └── README.md
 ```
@@ -595,6 +596,85 @@ name: senior-engineer
 model: opus       # Change to sonnet for faster/cheaper execution
 color: yellow
 ---
+```
+
+---
+
+## AWS Knowledge Plugin
+
+A self-contained plugin that wraps the [AWS Knowledge MCP server](https://knowledge-mcp.global.api.aws) using direct HTTP calls. No MCP client configuration required — skills use `curl` to call the server's JSON-RPC 2.0 API directly.
+
+### Installation
+
+```bash
+# Option 1: From marketplace
+/plugin install cm-stack-aws-knowledge@cm-stack-plugin
+
+# Option 2: Per-session
+claude --plugin-dir /path/to/cm-stack-plugin/plugins/cm-stack-aws-knowledge
+
+# Option 3: Project-level (.claude/plugins.json)
+{
+  "plugins": [
+    { "path": "/path/to/cm-stack-plugin/plugins/cm-stack-aws-knowledge" }
+  ]
+}
+```
+
+### AWS Skills
+
+| Skill | MCP Tool | Purpose |
+|-------|----------|---------|
+| `aws-search-docs` | `aws___search_documentation` | Search AWS docs & SOPs with topic filtering (9 topic categories) |
+| `aws-read-docs` | `aws___read_documentation` | Fetch & convert AWS doc pages to markdown |
+| `aws-recommend` | `aws___recommend` | Get related content recommendations for a doc URL |
+| `aws-list-regions` | `aws___list_regions` | List all AWS regions with codes and names |
+| `aws-check-availability` | `aws___get_regional_availability` | Check service/API/CloudFormation availability across regions |
+| `aws-retrieve-sop` | `aws___retrieve_agent_sop` | Retrieve step-by-step execution plans for AWS SOPs |
+| `aws-research` | (composite) | Chain search + read for comprehensive AWS answers with sources |
+
+### AWS Usage Examples
+
+```
+# Search for documentation
+"Search AWS docs for Lambda best practices"
+"How do I configure S3 bucket versioning?"
+
+# Read specific documentation
+"Read this AWS doc: https://docs.aws.amazon.com/lambda/latest/dg/welcome.html"
+
+# Get recommendations
+"What else should I read about Lambda?"
+
+# List regions
+"What AWS regions are available?"
+
+# Check availability
+"Is AWS Lambda available in ap-southeast-5?"
+"Compare DynamoDB availability across us-east-1, eu-west-1, and ap-northeast-1"
+
+# Retrieve SOPs
+"I need step-by-step guidance to deploy a Lambda function with API Gateway"
+
+# Comprehensive research
+"Help me understand how AWS Lambda pricing works"
+"Research AWS VPC peering best practices"
+```
+
+### Plugin Structure
+
+```
+plugins/cm-stack-aws-knowledge/
+├── .claude-plugin/
+│   └── plugin.json
+└── skills/
+    ├── aws-search-docs/SKILL.md
+    ├── aws-read-docs/SKILL.md
+    ├── aws-recommend/SKILL.md
+    ├── aws-list-regions/SKILL.md
+    ├── aws-check-availability/SKILL.md
+    ├── aws-retrieve-sop/SKILL.md
+    └── aws-research/SKILL.md
 ```
 
 ---

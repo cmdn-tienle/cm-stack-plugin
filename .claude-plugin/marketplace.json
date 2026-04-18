@@ -15,6 +15,18 @@
       "license": "MIT",
       "keywords": ["workflow", "agents", "sdlc", "development-team", "multi-agent"],
       "category": "productivity"
+    },
+    {
+      "name": "cm-stack-aws-knowledge",
+      "source": "./plugins/cm-stack-aws-knowledge",
+      "description": "AWS documentation and knowledge plugin for Claude Code - 7 skills wrapping the AWS Knowledge MCP server for searching docs, reading pages, getting recommendations, listing regions, checking service availability, retrieving agent SOPs, and comprehensive AWS research.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Tien Le H."
+      },
+      "license": "MIT",
+      "keywords": ["aws", "documentation", "knowledge", "mcp", "cloud", "regions", "sop"],
+      "category": "cloud-knowledge"
     }
   ]
 }
