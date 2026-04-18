@@ -1,0 +1,9 @@
+{
+  "name": "cm-stack-aws-knowledge",
+  "version": "0.1.0",
+  "description": "AWS documentation and knowledge plugin for Claude Code - 7 skills wrapping the AWS Knowledge MCP server for searching docs, reading pages, getting recommendations, listing regions, checking service availability, retrieving agent SOPs, and comprehensive AWS research.",
+  "author": {
+    "name": "Tien Le H."
+  },
+  "license": "MIT"
+}
