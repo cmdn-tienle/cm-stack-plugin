@@ -2,6 +2,17 @@
 
 A [Claude Code](https://docs.anthropic.com/en/docs/claude-code) plugin marketplace hosting plugins for structured development workflows and AWS knowledge access.
 
+## Plugin Overview
+
+| | **cm-stack-workflows** | **cm-stack-aws-knowledge** |
+|---|---|---|
+| **Version** | 0.1.5 | 0.1.0 |
+| **Category** | Productivity / SDLC | Cloud Knowledge |
+| **Agents** | 4 (Business Analyst, Tech Lead, Senior Engineer, QA) | -- |
+| **Skills** | 8 | 7 |
+| **Purpose** | Full development lifecycle from brainstorm to commit | AWS documentation, regions, SOPs |
+| **MCP required** | No | No (direct HTTP to AWS Knowledge server) |
+
 > **cm-stack-workflows**: Four agents, eight skills — a full development team in your terminal.
 > **cm-stack-aws-knowledge**: Seven skills wrapping the AWS Knowledge MCP server for documentation, regions, availability, and SOPs.
 
@@ -9,19 +20,23 @@ A [Claude Code](https://docs.anthropic.com/en/docs/claude-code) plugin marketpla
 
 ## Table of Contents
 
+**Marketplace**
 - [Installation](#installation)
+- [Plugin Structure](#plugin-structure)
+- [Configuration](#configuration)
+- [Contributing](#contributing)
+- [License](#license)
+
+**cm-stack-workflows**
 - [The Workflow Pipeline](#the-workflow-pipeline)
 - [Agents](#agents)
 - [Skills](#skills)
 - [Usage](#usage)
-- [Plugin Structure](#plugin-structure)
 - [How It Works](#how-it-works)
-- [Configuration](#configuration)
-- [AWS Knowledge Plugin](#aws-knowledge-plugin)
-  - [AWS Skills](#aws-skills)
-  - [AWS Usage Examples](#aws-usage-examples)
-- [Contributing](#contributing)
-- [License](#license)
+
+**cm-stack-aws-knowledge**
+- [Skills](#aws-skills)
+- [Usage Examples](#aws-usage-examples)
 
 ---
 
@@ -29,30 +44,44 @@ A [Claude Code](https://docs.anthropic.com/en/docs/claude-code) plugin marketpla
 
 ### Option 1: Install from Marketplace
 
-Add the marketplace and install the plugin:
+Add the marketplace and install the plugin(s):
 
 ```bash
 /plugin marketplace add cmdn-tienle/cm-stack-plugin
+```
+
+```bash
+# Workflow plugin
 /plugin install cm-stack-workflows@cm-stack-plugin
+
+# AWS Knowledge plugin
+/plugin install cm-stack-aws-knowledge@cm-stack-plugin
 ```
 
 ### Option 2: Per-Session (CLI Flag)
 
-Load the plugin for a single Claude Code session:
+Load a plugin for a single Claude Code session:
 
 ```bash
+# Workflow plugin
 claude --plugin-dir /path/to/cm-stack-plugin/plugins/cm-stack-workflows
+
+# AWS Knowledge plugin
+claude --plugin-dir /path/to/cm-stack-plugin/plugins/cm-stack-aws-knowledge
 ```
 
 ### Option 3: Project-Level (Persistent)
 
-Add to your project's `.claude/plugins.json` to auto-load the plugin for all sessions in that project:
+Add to your project's `.claude/plugins.json` to auto-load plugins for all sessions in that project:
 
 ```json
 {
   "plugins": [
     {
       "path": "/path/to/cm-stack-plugin/plugins/cm-stack-workflows"
+    },
+    {
+      "path": "/path/to/cm-stack-plugin/plugins/cm-stack-aws-knowledge"
     }
   ]
 }
@@ -62,7 +91,9 @@ Add to your project's `.claude/plugins.json` to auto-load the plugin for all ses
 
 ---
 
-## The Workflow Pipeline
+## cm-stack-workflows
+
+### The Workflow Pipeline
 
 CM Stack provides multiple entry points depending on how well-defined your requirements are:
 
@@ -81,7 +112,7 @@ CM Stack provides multiple entry points depending on how well-defined your requi
                └─────────────────────────────────────────────────────────────┘
 ```
 
-### Full Workflow (Documentation-Heavy)
+#### Full Workflow (Documentation-Heavy)
 
 | Phase | Skill | Input | Output | Agents Involved |
 |-------|-------|-------|--------|-----------------|
@@ -93,7 +124,7 @@ CM Stack provides multiple entry points depending on how well-defined your requi
 | **5. Commit** | `git-commit` | Staged changes | Clean git commits | — (utility skill) |
 | **Review** | `review-branch` | Branch diff | Structured review report | — (utility skill) |
 
-### Fast-Track (Skip Documentation)
+#### Fast-Track (Skip Documentation)
 
 | Phase | Skill | Input | Output | Agents Involved |
 |-------|-------|-------|--------|-----------------|
@@ -101,9 +132,9 @@ CM Stack provides multiple entry points depending on how well-defined your requi
 
 ---
 
-## Agents
+### Agents
 
-### Business Analyst
+#### Business Analyst
 
 | | |
 |---|---|
@@ -122,7 +153,7 @@ A Senior Business Analyst with 15+ years of experience. Transforms vague user ne
 
 ---
 
-### Technical Lead / Architect
+#### Technical Lead / Architect
 
 | | |
 |---|---|
@@ -142,7 +173,7 @@ An elite Technical Leader with 15+ years designing enterprise-grade systems. Pro
 
 ---
 
-### Senior Engineer
+#### Senior Engineer
 
 | | |
 |---|---|
@@ -162,7 +193,7 @@ A Senior Software Engineer who translates complex requirements into production-r
 
 ---
 
-### QA Engineer
+#### QA Engineer
 
 | | |
 |---|---|
@@ -182,9 +213,9 @@ A Senior QA Engineer and the last line of defense before code reaches production
 
 ---
 
-## Skills
+### Skills
 
-### `brainstorm` — Discovery & Clarification
+#### `brainstorm` — Discovery & Clarification
 
 > **Command:** Triggered when user has a vague idea, rough concept, or unstructured lead
 
@@ -206,7 +237,7 @@ Vague idea ───▶│   (business questions)       │──▶ Q&A ──�
 
 ---
 
-### `analyze` — Requirements Analysis
+#### `analyze` — Requirements Analysis
 
 > **Command:** Triggered when user provides feature requirements or asks to create a PRD
 
@@ -223,7 +254,7 @@ User requirement ──▶ │   (business perspective)    │──▶ Synthesi
 
 ---
 
-### `design` — System Design
+#### `design` — System Design
 
 > **Command:** Triggered when user provides a PRD and asks to create a system design
 
@@ -242,7 +273,7 @@ All findings are synthesized into a single comprehensive design document.
 
 ---
 
-### `plan` — Implementation Planning
+#### `plan` — Implementation Planning
 
 > **Command:** Triggered when user provides a design document and asks to plan implementation
 
@@ -261,7 +292,7 @@ Spawns `technical-lead-architect` (task breakdown & deps) and `business-analyst`
 
 ---
 
-### `task` — Task Execution
+#### `task` — Task Execution
 
 > **Command:** Triggered when user provides a plan file and asks to execute tasks
 
@@ -291,7 +322,7 @@ Tasks are only marked `✅ DONE` when all three reviewers pass. Failed reviews t
 
 ---
 
-### `fast-track` — Skip Documentation, Ship Fast
+#### `fast-track` — Skip Documentation, Ship Fast
 
 > **Command:** Triggered when user has well-defined requirements and wants to skip documentation
 
@@ -316,7 +347,7 @@ Well-defined ──▶ senior-engineer ──▶ Implementation ──▶ qa-eng
 
 ---
 
-### `review-branch` — Branch Code Review
+#### `review-branch` — Branch Code Review
 
 > **Command:** Triggered when user asks to review a branch, code changes, or PR
 
@@ -324,7 +355,7 @@ Performs a comprehensive code review by comparing the current branch against a t
 
 ```
 Target branch ──▶ git diff ──▶ Systematic review ──▶ Structured report
-(main/develop)     (gather)     (8 categories)       (docs/code-review/)
+(main/develop)     (gather)     (9 categories)       (docs/code-review/)
 ```
 
 **Review categories:**
@@ -336,6 +367,7 @@ Target branch ──▶ git diff ──▶ Systematic review ──▶ Structure
 - Data Integrity — transactions, migrations, rollback safety
 - Maintainability & Readability — abstraction level, naming, DRY
 - Testing — coverage, edge cases, deterministic tests
+- Cross-File Impact — rename breaks callers, data model propagation, circular deps
 
 **Severity levels:** CRITICAL / HIGH / MEDIUM / LOW / INFO
 
@@ -343,7 +375,7 @@ Target branch ──▶ git diff ──▶ Systematic review ──▶ Structure
 
 ---
 
-### `git-commit` — Clean Git Commits
+#### `git-commit` — Clean Git Commits
 
 > **Command:** Triggered when user asks to commit changes
 
@@ -356,9 +388,9 @@ A utility skill for creating clean, professional git commits:
 
 ---
 
-## Usage
+### Usage
 
-### Full Workflow Example (Complex Feature)
+#### Full Workflow Example (Complex Feature)
 
 ```
 You:    "I need a subscription billing system for my SaaS app"
@@ -387,7 +419,7 @@ You:    "Commit the changes"
 Output: Clean git commit(s)
 ```
 
-### Discovery Workflow Example (Vague Idea)
+#### Discovery Workflow Example (Vague Idea)
 
 ```
 You:    "I'm thinking about adding SSO to our app"
@@ -404,7 +436,7 @@ You:    "Now analyze and create a PRD"
         ↓ (continues to full workflow)
 ```
 
-### Fast-Track Example (Skip Documentation)
+#### Fast-Track Example (Skip Documentation)
 
 ```
 You:    "Add a rate limiter to the API, max 100 req/min per IP"
@@ -419,7 +451,7 @@ Output: QA review passed, done!
 Total: 2 agents, no documentation, fast delivery
 ```
 
-### Individual Skill Usage
+#### Individual Skill Usage
 
 You can use any skill independently:
 
@@ -446,7 +478,7 @@ You can use any skill independently:
 "Review my branch against main"
 ```
 
-### Choosing the Right Workflow
+#### Choosing the Right Workflow
 
 | Your Situation | Use | Why |
 |----------------|-----|-----|
@@ -457,7 +489,7 @@ You can use any skill independently:
 | "I have a plan, execute it" | `task` | Start implementation |
 | "Review my branch/changes" | `review-branch` | Catch issues before merge |
 
-### Checking Progress
+#### Checking Progress
 
 ```
 "Check progress on docs/plans/plan_001.md"
@@ -467,9 +499,141 @@ Returns a summary of completed, in-progress, pending, and blocked tasks with per
 
 ---
 
+### How It Works
+
+#### Agent Orchestration
+
+The plugin uses Claude Code's **Agent tool** to spawn specialized subagents. Each agent definition includes:
+
+- **Frontmatter** — Name, description with usage examples, model selection, and color coding
+- **System prompt** — Identity, core competencies, behavioral guidelines, and output formats
+
+Agents are spawned on-demand by skills and can run in parallel using `run_in_background: true`.
+
+#### Multi-Perspective Review
+
+The `task` skill implements a **review gate** that requires three independent reviews before work is marked complete:
+
+1. **Business Analyst** — Validates acceptance criteria and business logic correctness
+2. **Technical Lead** — Reviews architectural alignment, code quality, and security
+3. **QA Engineer** — Performs code review, identifies defects, verifies test coverage
+
+If any reviewer flags issues, the implementation is revised and re-reviewed.
+
+#### Agent Memory
+
+All agents are designed to **build institutional knowledge** across conversations. They record:
+
+- Architectural patterns and conventions discovered in the codebase
+- Database schemas and relationships
+- Integration points and API contracts
+- Testing patterns and factory configurations
+- Common bug patterns and performance benchmarks
+
+---
+
+## cm-stack-aws-knowledge
+
+### Overview
+
+A self-contained plugin that wraps the [AWS Knowledge MCP server](https://knowledge-mcp.global.api.aws) using direct HTTP calls. No MCP client configuration required — skills use `curl` to call the server's JSON-RPC 2.0 API directly.
+
+### Skills
+
+| Skill | MCP Tool | Purpose |
+|-------|----------|---------|
+| `aws-search-docs` | `aws___search_documentation` | Search AWS docs & SOPs with topic filtering (9 topic categories) |
+| `aws-read-docs` | `aws___read_documentation` | Fetch & convert AWS doc pages to markdown |
+| `aws-recommend` | `aws___recommend` | Get related content recommendations for a doc URL |
+| `aws-list-regions` | `aws___list_regions` | List all AWS regions with codes and names |
+| `aws-check-availability` | `aws___get_regional_availability` | Check service/API/CloudFormation availability across regions |
+| `aws-retrieve-sop` | `aws___retrieve_agent_sop` | Retrieve step-by-step execution plans for AWS SOPs (**must search first**) |
+| `aws-research` | (composite) | Chain search + read for comprehensive AWS answers with sources |
+
+#### Topic Categories (`aws-search-docs`)
+
+Filter search results by topic. Select up to 3 per query, or omit to default to `general`.
+
+| Topic | Use When |
+|-------|----------|
+| `reference_documentation` | API methods, SDK code, CLI commands |
+| `current_awareness` | New features, announcements, releases |
+| `troubleshooting` | Error messages, debugging, problems |
+| `amplify_docs` | Amplify framework questions |
+| `cdk_docs` | CDK concepts, APIs, CLI, getting started |
+| `cdk_constructs` | CDK code examples, patterns, constructs |
+| `cloudformation` | CloudFormation templates, SAM |
+| `agent_sops` | Step-by-step AWS operational procedures |
+| `general` | Architecture, blogs, guides, best practices |
+
+#### Resource Types (`aws-check-availability`)
+
+Check availability using three resource types:
+
+| Type | Use When | Filter Format |
+|------|----------|---------------|
+| `product` | AWS services or features | `["AWS Lambda", "Amazon S3"]` |
+| `api` | SDK/API operations | `["IAM+GetSSHPublicKey", "EC2"]` |
+| `cfn` | CloudFormation resource types | `["AWS::EC2::Instance"]` |
+
+#### Allowed URL Domains (`aws-read-docs`)
+
+`aws-read-docs` only supports URLs from these domains:
+
+- `docs.aws.amazon.com`
+- `aws.amazon.com` (except `/marketplace`)
+- `repost.aws/knowledge-center`
+- `docs.amplify.aws` / `ui.docs.amplify.aws`
+- `github.com/aws-cloudformation/aws-cloudformation-templates`
+- `github.com/aws-samples/aws-cdk-examples`
+- `github.com/aws-samples/generative-ai-cdk-constructs-samples`
+- `github.com/aws-samples/serverless-patterns`
+- `github.com/awsdocs/aws-cdk-guide`
+- `github.com/awslabs/aws-solutions-constructs`
+- `github.com/cdklabs/cdk-nag`
+- `constructs.dev/packages/*`
+
+#### SOP Retrieval Prerequisite (`aws-retrieve-sop`)
+
+SOP names are opaque identifiers that **cannot be guessed**. You must:
+
+1. Call `aws-search-docs` with topic `agent_sops` to discover available SOPs
+2. Copy the exact `sop_name` field from search results
+3. Pass it to `aws-retrieve-sop` — no modifications allowed
+
+### Usage Examples
+
+```
+# Search for documentation
+"Search AWS docs for Lambda best practices"
+"How do I configure S3 bucket versioning?"
+
+# Read specific documentation
+"Read this AWS doc: https://docs.aws.amazon.com/lambda/latest/dg/welcome.html"
+
+# Get recommendations
+"What else should I read about Lambda?"
+
+# List regions
+"What AWS regions are available?"
+
+# Check availability
+"Is AWS Lambda available in ap-southeast-5?"
+"Compare DynamoDB availability across us-east-1, eu-west-1, and ap-northeast-1"
+
+# Retrieve SOPs
+"I need step-by-step guidance to deploy a Lambda function with API Gateway"
+
+# Comprehensive research
+"Help me understand how AWS Lambda pricing works"
+"Research AWS VPC peering best practices"
+```
+
+---
+
 ## Plugin Structure
 
-This repository is a **plugin marketplace** that hosts the `cm-stack-workflows` plugin in a monorepo layout:
+This repository is a **plugin marketplace** that hosts two plugins in a monorepo layout:
 
 ```
 cm-stack-plugin/                            # Marketplace repository
@@ -527,52 +691,19 @@ your-project/
     ├── plans/
     │   ├── plan_001.md                # Implementation Plan
     │   └── plan_002.md
-    └── implementation/
-        └── impl_001.md                # Optional fast-track summary
+    ├── implementation/
+    │   └── impl_001.md                # Optional fast-track summary
     └── code-review/
         └── 20260407-143025_feature-login_main.md  # Branch review report
 ```
 
 ---
 
-## How It Works
-
-### Agent Orchestration
-
-The plugin uses Claude Code's **Agent tool** to spawn specialized subagents. Each agent definition includes:
-
-- **Frontmatter** — Name, description with usage examples, model selection, and color coding
-- **System prompt** — Identity, core competencies, behavioral guidelines, and output formats
-
-Agents are spawned on-demand by skills and can run in parallel using `run_in_background: true`.
-
-### Multi-Perspective Review
-
-The `task` skill implements a **review gate** that requires three independent reviews before work is marked complete:
-
-1. **Business Analyst** — Validates acceptance criteria and business logic correctness
-2. **Technical Lead** — Reviews architectural alignment, code quality, and security
-3. **QA Engineer** — Performs code review, identifies defects, verifies test coverage
-
-If any reviewer flags issues, the implementation is revised and re-reviewed.
-
-### Agent Memory
-
-All agents are designed to **build institutional knowledge** across conversations. They record:
-
-- Architectural patterns and conventions discovered in the codebase
-- Database schemas and relationships
-- Integration points and API contracts
-- Testing patterns and factory configurations
-- Common bug patterns and performance benchmarks
-
----
-
 ## Configuration
 
-### Plugin Manifest
+### Plugin Manifests
 
-The plugin is defined in `plugins/cm-stack-workflows/.claude-plugin/plugin.json`:
+**cm-stack-workflows** (`plugins/cm-stack-workflows/.claude-plugin/plugin.json`)
 
 ```json
 {
@@ -586,7 +717,23 @@ The plugin is defined in `plugins/cm-stack-workflows/.claude-plugin/plugin.json`
 }
 ```
 
+**cm-stack-aws-knowledge** (`plugins/cm-stack-aws-knowledge/.claude-plugin/plugin.json`)
+
+```json
+{
+  "name": "cm-stack-aws-knowledge",
+  "version": "0.1.0",
+  "description": "AWS documentation and knowledge plugin for Claude Code - 7 skills wrapping the AWS Knowledge MCP server for searching docs, reading pages, getting recommendations, listing regions, checking service availability, retrieving agent SOPs, and comprehensive AWS research.",
+  "author": {
+    "name": "Tien Le H."
+  },
+  "license": "MIT"
+}
+```
+
 ### Agent Model Selection
+
+> Applies to **cm-stack-workflows** only (the only plugin that uses agents).
 
 All agents currently use the `opus` model for highest quality reasoning. You can modify the `model` field in each agent's frontmatter to change this:
 
@@ -600,90 +747,12 @@ color: yellow
 
 ---
 
-## AWS Knowledge Plugin
-
-A self-contained plugin that wraps the [AWS Knowledge MCP server](https://knowledge-mcp.global.api.aws) using direct HTTP calls. No MCP client configuration required — skills use `curl` to call the server's JSON-RPC 2.0 API directly.
-
-### Installation
-
-```bash
-# Option 1: From marketplace
-/plugin install cm-stack-aws-knowledge@cm-stack-plugin
-
-# Option 2: Per-session
-claude --plugin-dir /path/to/cm-stack-plugin/plugins/cm-stack-aws-knowledge
-
-# Option 3: Project-level (.claude/plugins.json)
-{
-  "plugins": [
-    { "path": "/path/to/cm-stack-plugin/plugins/cm-stack-aws-knowledge" }
-  ]
-}
-```
-
-### AWS Skills
-
-| Skill | MCP Tool | Purpose |
-|-------|----------|---------|
-| `aws-search-docs` | `aws___search_documentation` | Search AWS docs & SOPs with topic filtering (9 topic categories) |
-| `aws-read-docs` | `aws___read_documentation` | Fetch & convert AWS doc pages to markdown |
-| `aws-recommend` | `aws___recommend` | Get related content recommendations for a doc URL |
-| `aws-list-regions` | `aws___list_regions` | List all AWS regions with codes and names |
-| `aws-check-availability` | `aws___get_regional_availability` | Check service/API/CloudFormation availability across regions |
-| `aws-retrieve-sop` | `aws___retrieve_agent_sop` | Retrieve step-by-step execution plans for AWS SOPs |
-| `aws-research` | (composite) | Chain search + read for comprehensive AWS answers with sources |
-
-### AWS Usage Examples
-
-```
-# Search for documentation
-"Search AWS docs for Lambda best practices"
-"How do I configure S3 bucket versioning?"
-
-# Read specific documentation
-"Read this AWS doc: https://docs.aws.amazon.com/lambda/latest/dg/welcome.html"
-
-# Get recommendations
-"What else should I read about Lambda?"
-
-# List regions
-"What AWS regions are available?"
-
-# Check availability
-"Is AWS Lambda available in ap-southeast-5?"
-"Compare DynamoDB availability across us-east-1, eu-west-1, and ap-northeast-1"
-
-# Retrieve SOPs
-"I need step-by-step guidance to deploy a Lambda function with API Gateway"
-
-# Comprehensive research
-"Help me understand how AWS Lambda pricing works"
-"Research AWS VPC peering best practices"
-```
-
-### Plugin Structure
-
-```
-plugins/cm-stack-aws-knowledge/
-├── .claude-plugin/
-│   └── plugin.json
-└── skills/
-    ├── aws-search-docs/SKILL.md
-    ├── aws-read-docs/SKILL.md
-    ├── aws-recommend/SKILL.md
-    ├── aws-list-regions/SKILL.md
-    ├── aws-check-availability/SKILL.md
-    ├── aws-retrieve-sop/SKILL.md
-    └── aws-research/SKILL.md
-```
-
----
-
 ## Contributing
 
-1. **Agents** are defined in `plugins/cm-stack-workflows/agents/<name>.md` with YAML frontmatter + markdown system prompts
-2. **Skills** are defined in `plugins/cm-stack-workflows/skills/<name>/SKILL.md` with workflow instructions
-3. Follow the existing patterns for consistency — each skill should document:
+1. **Agents** (cm-stack-workflows) are defined in `plugins/cm-stack-workflows/agents/<name>.md` with YAML frontmatter + markdown system prompts
+2. **Workflow Skills** (cm-stack-workflows) are defined in `plugins/cm-stack-workflows/skills/<name>/SKILL.md` with workflow instructions
+3. **AWS Skills** (cm-stack-aws-knowledge) are defined in `plugins/cm-stack-aws-knowledge/skills/<name>/SKILL.md` with MCP integration instructions
+4. Follow the existing patterns for consistency — each skill should document:
    - When to use / when not to use
    - Workflow diagram (Mermaid)
    - Step-by-step implementation
