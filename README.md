@@ -4,17 +4,18 @@ A [Claude Code](https://docs.anthropic.com/en/docs/claude-code) plugin marketpla
 
 ## Plugin Overview
 
-| | **cm-stack-workflows** | **cm-stack-aws-knowledge** |
-|---|---|---|
-| **Version** | 0.1.5 | 0.1.0 |
-| **Category** | Productivity / SDLC | Cloud Knowledge |
-| **Agents** | 4 (Business Analyst, Tech Lead, Senior Engineer, QA) | -- |
-| **Skills** | 8 | 7 |
-| **Purpose** | Full development lifecycle from brainstorm to commit | AWS documentation, regions, SOPs |
-| **MCP required** | No | No (direct HTTP to AWS Knowledge server) |
+| | **cm-stack-workflows** | **cm-stack-aws-knowledge** | **cm-stack-local-wiki** |
+|---|---|---|---|
+| **Version** | 0.1.5 | 0.1.0 | 0.1.0 |
+| **Category** | Productivity / SDLC | Cloud Knowledge | Knowledge Management |
+| **Agents** | 4 (Business Analyst, Tech Lead, Senior Engineer, QA) | -- | -- |
+| **Skills** | 8 | 7 | 5 |
+| **Purpose** | Full development lifecycle from brainstorm to commit | AWS documentation, regions, SOPs | Personal knowledge wiki with Obsidian markdown |
+| **MCP required** | No | No (direct HTTP to AWS Knowledge server) | No |
 
-> **cm-stack-workflows**: Four agents, eight skills — a full development team in your terminal.
-> **cm-stack-aws-knowledge**: Seven skills wrapping the AWS Knowledge MCP server for documentation, regions, availability, and SOPs.
+- **cm-stack-workflows**: Four agents, eight skills — a full development team in ur terminal.
+- **cm-stack-aws-knowledge**: Seven skills wrapping the AWS Knowledge MCP server r documentation, regions, availability, and SOPs.
+- **cm-stack-local-wiki**: Five skills implementing the Karpathy LLM Wiki pattern — build a compounding personal knowledge base with structured markdown.
 
 ---
 
@@ -38,6 +39,11 @@ A [Claude Code](https://docs.anthropic.com/en/docs/claude-code) plugin marketpla
 - [Skills](#aws-skills)
 - [Usage Examples](#aws-usage-examples)
 
+**cm-stack-local-wiki**
+- [The Wiki Pipeline](#the-wiki-pipeline)
+- [Wiki Skills](#wiki-skills)
+- [Wiki Usage Examples](#wiki-usage-examples)
+
 ---
 
 ## Installation
@@ -56,6 +62,9 @@ Add the marketplace and install the plugin(s):
 
 # AWS Knowledge plugin
 /plugin install cm-stack-aws-knowledge@cm-stack-plugin
+
+# Local Wiki plugin
+/plugin install cm-stack-local-wiki@cm-stack-plugin
 ```
 
 ### Option 2: Per-Session (CLI Flag)
@@ -68,6 +77,9 @@ claude --plugin-dir /path/to/cm-stack-plugin/plugins/cm-stack-workflows
 
 # AWS Knowledge plugin
 claude --plugin-dir /path/to/cm-stack-plugin/plugins/cm-stack-aws-knowledge
+
+# Local Wiki plugin
+claude --plugin-dir /path/to/cm-stack-plugin/plugins/cm-stack-local-wiki
 ```
 
 ### Option 3: Project-Level (Persistent)
@@ -82,6 +94,9 @@ Add to your project's `.claude/plugins.json` to auto-load plugins for all sessio
     },
     {
       "path": "/path/to/cm-stack-plugin/plugins/cm-stack-aws-knowledge"
+    },
+    {
+      "path": "/path/to/cm-stack-plugin/plugins/cm-stack-local-wiki"
     }
   ]
 }
@@ -631,9 +646,80 @@ SOP names are opaque identifiers that **cannot be guessed**. You must:
 
 ---
 
+## cm-stack-local-wiki
+
+### Overview
+
+A self-contained plugin implementing the [Karpathy LLM Wiki](https://gist.githubusercontent.com/karpathy/442a6bf555914893e9891c11519de94f/raw/ac46de1ad27f92b28ac95459c782c07f6b8c964a/llm-wiki.md) pattern — a persistent, compounding knowledge base where the LLM writes and maintains all content. Works with any directory; optimized for Obsidian vaults.
+
+Instead of retrieving from raw documents at query time (like RAG), the LLM **incrementally builds and maintains a persistent wiki** of structured, interlinked markdown files. The wiki keeps getting richer with every source you add and every question you ask.
+
+### The Wiki Pipeline
+
+```
+                           ┌───────────┐  ┌──────────────┐   ┌────────────┐
+New vault / directory ───▶ │ WIKI-INIT │  │  WIKI-INGEST │   │ WIKI-QUERY │
+                           │           │  │              │   │            │
+                           │ Create    │  │ Source →     │   │  Ask       │
+                           │ structure │  │ pages        │   │  questions │
+                           └───────────┘  └──────────────┘   └────────────┘
+                                  │               │                 │
+                                  │               ▼                 ▼
+                                  │       ┌───────────────┐  ┌─────────────┐
+                                  │       │  WIKI-LINT    │  │ WIKI-SEARCH │
+                                  │       │               │  │             │
+                                  │       │ Health check  │  │  Quick      │
+                                  │       │ & gap analysis│  │  lookup     │
+                                  │       └───────────────┘  └─────────────┘
+                                  │
+                                  └───▶ Drop source files into Sources/ or Clippings/
+```
+
+### Wiki Skills
+
+| Skill | Purpose |
+|-------|---------|
+| `wiki-init` | Initialize wiki structure (directories, CLAUDE.md schema, index, log) |
+| `wiki-ingest` | Process a source document into wiki pages (summaries, concepts, entities) |
+| `wiki-lint` | Health-check: broken links, orphans, frontmatter, gaps |
+| `wiki-query` | Ask a question and get a synthesized, cited answer from wiki content |
+| `wiki-search` | Quick read-only search across wiki pages |
+
+#### Usage Pipeline
+
+1. **Initialize** — Run `wiki-init` once in your vault/directory. It asks for your focus area and creates the structure.
+2. **Ingest** — Drop source documents into `Sources/` or `Clippings/`, then run `wiki-ingest` on each file.
+3. **Query** — Ask questions with `wiki-query`. Good answers can be filed back as new wiki pages.
+4. **Search** — Use `wiki-search` for quick lookups without full synthesis.
+5. **Lint** — Run `wiki-lint` periodically to keep the wiki healthy.
+
+### Wiki Usage Examples
+
+```
+# Initialize a new wiki
+"Initialize a wiki in this directory focused on AI/ML engineering"
+
+# Ingest a source document
+"Ingest Clippings/my-article.md into the wiki"
+"Add Sources/papers/attention-is-all-you-need.pdf to the wiki"
+
+# Ask questions
+"What does my wiki say about retrieval-augmented generation?"
+"Compare HyDE and query expansion techniques based on my wiki"
+
+# Quick search
+"Search my wiki for embeddings"
+
+# Health check
+"Lint my wiki"
+"Check wiki health and find broken links"
+```
+
+---
+
 ## Plugin Structure
 
-This repository is a **plugin marketplace** that hosts two plugins in a monorepo layout:
+This repository is a **plugin marketplace** that hosts three plugins in a monorepo layout:
 
 ```
 cm-stack-plugin/                            # Marketplace repository
@@ -668,6 +754,15 @@ cm-stack-plugin/                            # Marketplace repository
 │           ├── aws-check-availability/SKILL.md  # Check regional availability
 │           ├── aws-retrieve-sop/SKILL.md   # Retrieve AWS SOPs
 │           └── aws-research/SKILL.md       # Composite search + read
+│   └── cm-stack-local-wiki/                # Local Wiki plugin
+│       ├── .claude-plugin/
+│       │   └── plugin.json                 # Plugin manifest
+│       └── skills/
+│           ├── wiki-init/SKILL.md          # Initialize wiki structure
+│           ├── wiki-ingest/SKILL.md        # Ingest source → wiki pages
+│           ├── wiki-lint/SKILL.md          # Health-check wiki
+│           ├── wiki-query/SKILL.md         # Query wiki with synthesis
+│           └── wiki-search/SKILL.md        # Quick search across wiki
 ├── LICENSE                                 # MIT License
 └── README.md
 ```

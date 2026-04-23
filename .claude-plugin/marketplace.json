@@ -27,6 +27,18 @@
       "license": "MIT",
       "keywords": ["aws", "documentation", "knowledge", "mcp", "cloud", "regions", "sop"],
       "category": "cloud-knowledge"
+    },
+    {
+      "name": "cm-stack-local-wiki",
+      "source": "./plugins/cm-stack-local-wiki",
+      "description": "LLM Wiki plugin for Claude Code - 5 skills implementing the Karpathy 'LLM Wiki' pattern for maintaining a structured personal knowledge base with Obsidian-compatible markdown: wiki-init, wiki-ingest, wiki-lint, wiki-query, and wiki-search.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Tien Le H."
+      },
+      "license": "MIT",
+      "keywords": ["wiki", "knowledge-base", "obsidian", "llm-wiki", "karpathy", "personal-knowledge", "markdown"],
+      "category": "knowledge-management"
     }
   ]
 }
