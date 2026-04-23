@@ -1,0 +1,9 @@
+{
+  "name": "cm-stack-local-wiki",
+  "version": "0.1.0",
+  "description": "LLM Wiki plugin for Claude Code - 5 skills implementing the Karpathy 'LLM Wiki' pattern for maintaining a structured personal knowledge base with Obsidian-compatible markdown: wiki-init, wiki-ingest, wiki-lint, wiki-query, and wiki-search.",
+  "author": {
+    "name": "Tien Le H."
+  },
+  "license": "MIT"
+}
